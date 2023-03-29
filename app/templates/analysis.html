@@ -17,33 +17,82 @@
           </form>
       </div>
     </div>
-		<hs1>Analysis</hs1>
-        <h3>Latencies of tasks completed after their deadlines</h3>
+		<h1>Analysis</h1>
+    <h3 class="analysis-title">Latencies of tasks completed after their deadlines</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Latency</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for lat in latencies %}
-            <p>{{lat.title}}</p>
-            <p>{{lat.latency}}</p>
+          <tr>
+            <td>{{lat.title}}</td>
+            <td>{{lat.latency}}</td>
+          </tr>
         {% endfor %}
+      </tbody>
+    </table>
 
-        <h3>Average task completion time</h3>
-        <p>{{average_completion.average}}</p>
+    <h3 class="analysis-title">Average task completion time</h3>
+    <p>{{average_completion.average}}</p>
 
-        <h3>Number of the completed tasks per task type</h3>
+    <h3 class="analysis-title">Number of the completed tasks per task type</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Task type</th>
+          <th>Number of tasks</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for task in task_counts %}
-            <p>{{task.task_type}}</p>
-            <p>{{task.count}}</p>
+          <tr>
+            <td>{{task.task_type}}</td>
+            <td>{{task.count}}</td>
+          </tr>
         {% endfor %}
+      </tbody>
+    </table>
+    
 
-        <h3>Title and deadline of uncompleted tasks</h3>
-        {% for unc in uncompleted %}
-            <p>{{unc.title}}</p>
-            <p>{{unc.deadline}}</p>
+    <h3 class="analysis-title">Title and deadline of uncompleted tasks</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Deadline</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%  for unc in uncompleted %}
+          <tr>
+            <td>{{unc.title}}</td>
+            <td>{{unc.deadline}}</td>
+          </tr>
         {% endfor %}
+      </tbody>
+    </table>
 
-        <h3>Title and task completion time of the top 2 completed tasks that took the most time</h3>
-        {% for task in top_completions %}
-            <p>{{task.title}}</p>
-            <p>{{task.completion_time}}</p>
+    <h3 class="analysis-title">Title and task completion time of the top 2 completed tasks that took the most time</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Completion time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {%  for task in top_completions %}
+          <tr>
+            <td>{{task.title}}</td>
+            <td>{{task.completion_time}}</td>
+          </tr>
         {% endfor %}
+      </tbody>
+    </table>
         
 	</div>
   </body>

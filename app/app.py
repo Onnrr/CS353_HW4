@@ -70,11 +70,14 @@ def register():
 def tasks():
     message = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM Task WHERE user_id = %s;', (session['userid'],))
+    cursor.execute('SELECT * FROM Task WHERE user_id = %s ORDER BY deadline;', (session['userid'],))
     tasks = cursor.fetchall()
+
+    cursor.execute('SELECT * FROM Task WHERE user_id = %s AND status = \'Done\' ORDER BY done_time;', (session['userid'],))
+    completed = cursor.fetchall()
     cursor.execute('SELECT * FROM TaskType;')
     types = cursor.fetchall()
-    return render_template('tasks.html', tasks=tasks, message=message, session=session, types = types)
+    return render_template('tasks.html', tasks=tasks, completed=completed, message=message, session=session, types = types)
 
 @app.route('/add_task', methods =['POST'])
 def add_task():
@@ -148,10 +151,12 @@ def uncomplete(id):
 @app.route('/update', methods =['POST'])
 def update():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    if session['loggedin'] and 'title' in request.form and 'description' in request.form and 'task_type' in request.form:
+    if session['loggedin'] and 'title' in request.form and 'description' in request.form and 'task_type' in request.form and 'deadline_time' in request.form and 'deadline_date' in request.form:
         cursor.execute('UPDATE Task SET title=%s WHERE id=%s;', (request.form['title'], session['selected']['id'],))
         cursor.execute('UPDATE Task SET description = %s WHERE id = %s;', (request.form['description'],session['selected']['id'],))
         cursor.execute('UPDATE Task SET task_type = %s WHERE id = %s;', (request.form['task_type'],session['selected']['id'],))
+        deadline = request.form['deadline_date'] + ' ' + request.form['deadline_time']
+        cursor.execute('UPDATE Task SET deadline = %s WHERE id = %s;', (deadline,session['selected']['id'],))
         mysql.connection.commit()
         session['selected'] = None
 

@@ -24,57 +24,76 @@
             <div class="title">
                 <h1>Welcome {{ session.username }}</h1>
             </div>
-            
-            {% if tasks %}
-            <div class="task-list-container">
-                <h2 class="list-title">Your tasks</h2>
-                {% for task in tasks %}
-                    {% if task.status == 'Todo' %}
-                        <div class="task-card">
+            <div class="list-container">
+
+                {% if tasks %}
+                <div class="task-list-container">
+                    <h2 class="list-title">Your tasks</h2>
+                    {% for task in tasks %}
+                        {% if task.status == 'Todo' %}
+                            <div class="task-card">
+                                <div class="descrip">
+                                    <h3>{{ task.title }}</h3>
+                                    <p>{{ task.description }}</p>
+                                    <p><strong>Type:</strong> {{task.task_type}}</p>
+                                </div>
+                                <div>
+                                    <p>Deadline: {{ task.deadline }}</p>
+                                    <p>Creation: {{ task.creation_time }}</p>
+                                </div>
+                                <div class="buttons">
+                                    <a href="{{'delete/'+task.id|string}}" >Delete</a>
+                                    <a href="{{'complete/'+task.id|string}}" >Complete</a>
+                                    <a href="{{'select/'+task.id|string}}" >Update</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="task-card completed">
+                                <div class="descrip">
+                                    <h3>{{ task.title }}</h3>
+                                    <p>{{ task.description }}</p>
+                                    <p><strong>Type:</strong> {{task.task_type}}</p>
+                                </div>
+                                <div>
+                                    <p>Completed: {{ task.done_time }}</p>
+                                    <p>Deadline: {{ task.deadline }}</p>
+                                    <p>Creation: {{ task.creation_time }}</p>
+                                </div>
+                                <div class="buttons">
+                                    <a href="{{'delete/'+task.id|string}}" >Delete</a>
+                                    <a href="{{'uncomplete/'+task.id|string}}" >Uncomplete</a>
+                                    <a href="{{'select/'+task.id|string}}" >Update</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="completed-list-container">
+                    <h2 class="list-title">Completed tasks</h2>
+                    {% for task in completed %}
+                        <div class="task-card completed">
                             <div class="descrip">
                                 <h3>{{ task.title }}</h3>
                                 <p>{{ task.description }}</p>
-                                <p><strong>Title:</strong> {{task.task_type}}</p>
+                                <p><strong>Type:</strong> {{task.task_type}}</p>
                             </div>
                             <div>
+                                <p>Completed: {{ task.done_time }}</p>
                                 <p>Deadline: {{ task.deadline }}</p>
                                 <p>Creation: {{ task.creation_time }}</p>
                             </div>
                             <div class="buttons">
                                 <a href="{{'delete/'+task.id|string}}" >Delete</a>
-                                <a href="{{'complete/'+task.id|string}}" >Complete</a>
+                                <a href="{{'uncomplete/'+task.id|string}}" >Uncomplete</a>
                                 <a href="{{'select/'+task.id|string}}" >Update</a>
                             </div>
                         </div>
-                    {% endif %}
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <h3>You have no tasks</h3>
+                {% endif %}            
             </div>
-            <div class="completed-list-container">
-                <h2 class="list-title">Completed tasks</h2>
-                {% for task in tasks %}
-                    {% if task.status == 'Done' %}
-                    <div class="task-card completed">
-                        <div class="descrip">
-                            <h3>{{ task.title }}</h3>
-                            <p>{{ task.description }}</p>
-                        </div>
-                        <div>
-                            <p>Deadline: {{ task.deadline }}</p>
-                            <p>Creation: {{ task.creation_time }}</p>
-                            <p>Completed: {{ task.done_time }}</p>
-                        </div>
-                        <div class="buttons">
-                            <a href="{{'uncomplete/'+task.id|string}}" >Uncomplete</a>
-                            <a href="{{'delete/'+task.id|string}}" >Delete</a>
-                        </div>
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {% else %}
-                <h3>You have no tasks</h3>
-            {% endif %}
-            
             {% if not session.selected %}
             <div class="task-create-container">
                 <h2 class="list-title">Create new task</h2>
@@ -99,11 +118,9 @@
                     <div class="form-group">
                         <label for="task_type">Task type:</label>
                         <select id="task_type" name="task_type">
-                            <option value="Health">Health</option>
-                            <option value="Job">Job</option>
-                            <option value="Lifestyle">Lifestyle</option>
-                            <option value="Family">Family</option>
-                            <option value="Hobbies">Hobbies</option>
+                            {% for type in types %}
+                                <option value="{{type.type}}">{{type.type}}</option>
+                            {% endfor %}
                         </select>
                     </div>  
                 
@@ -125,21 +142,21 @@
                         </div>
                         <div class="form-group">
                             <label for="deadline_date">Deadline date:</label>
-                            <input value="{{session.selected.deadline}}" type="date" class="form-control" id="deadline_date" name="deadline_date" placeholder="Enter due date">
+                            {% set de_date = session.selected.deadline | string %}
+                            <input value="{{de_date[0:10]}}" type="date" class="form-control" id="deadline_date" name="deadline_date" placeholder="Enter due date">
                         </div>
                         <div class="form-group">
                             <label for="deadline_time">Deadline time:</label>
-                            <input type="time" class="form-control" id="deadline_time" name="deadline_time" placeholder="Enter due date">
+                            {% set de_time = session.selected.deadline | string %}
+                            <input value="{{de_time[11:19]}}" type="time" class="form-control" id="deadline_time" name="deadline_time" placeholder="Enter due date">
                         </div>
                         <div class="form-group">
                             <label for="task_type">Task type:</label>
                             <select id="task_type" name="task_type">
                                 <option value="{{session.selected.task_type}}">{{session.selected.task_type}}</option>
-                                <option value="Health">Health</option>
-                                <option value="Job">Job</option>
-                                <option value="Lifestyle">Lifestyle</option>
-                                <option value="Family">Family</option>
-                                <option value="Hobbies">Hobbies</option>
+                                {% for type in types %}
+                                    <option value="{{type.type}}">{{type.type}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     
