@@ -1,0 +1,133 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.container {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.task-container {
+    display: grid;
+    grid-template-areas:
+                        "h h h"
+                        "t t t"
+                        "tl c cr"
+                        "tl c cr";
+    gap: 10px;
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
+}
+
+.task-list-container {
+    min-width: 32vw;
+    padding-left: 1vw;
+    grid-area: tl;
+    max-height: 80vh;
+    min-height: 80vh;
+    overflow-y: scroll;
+}
+.list-title {
+    margin-bottom: 10px;
+}
+
+.completed-list-container {
+    min-width: 32vw;
+    grid-area: c;
+    max-height: 80vh;
+    min-height: 80vh;
+    overflow-y: scroll;
+}
+
+.title {
+    grid-area: t;
+    padding-left: 2vw;
+    padding-bottom: 2vh;
+    padding-top: 2vh;
+}
+
+.task-create-container {
+    min-width: 32vw;
+    grid-area: cr;
+    padding-right: 1vw;
+}
+
+.task-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px -5px rgba(71,71,71,1);
+}
+
+.descrip {
+    width: 30%;
+}
+
+.completed {
+    background-color: #d3d3d3;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    background-color: transparent;
+    border-radius: 5px;
+    color: #333;
+    font-size: 16px;
+    padding: 5px 6px;
+    text-decoration: none;
+}
+
+a:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.header {
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 100%;
+    margin: 0;
+    height: 7vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    grid-area: h;
+    background-color: #d3d3d3;
+}
+
+.top-buttons {
+    display: flex;
+}
+
+p {
+    padding: 2px;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body>
+	<div class="container">
+    <div class="header">
+      <h3>Tasks App</h3>
+      <div class="top-buttons">
+          <form action="{{ url_for('tasks') }}" method="get">
+              <button class="btn btn-primary">Go to tasks</button>
+          </form>
+          <form action="{{ url_for('logout') }}" method="get">
+              <button class="btn btn-primary">Log out</button>
+          </form>
+      </div>
+    </div>
+		<hs1>Analysis</hs1>
+        <h3>Latencies of tasks completed after their deadlines</h3>
+        {% for lat in latencies %}
+            <p>{{lat.title}}</p>
+            <p>{{lat.latency}}</p>
+        {% endfor %}
+
+        <h3>Average task completion time</h3>
+        <p>{{average_completion.average}}</p>
+
+        <h3>Number of the completed tasks per task type</h3>
+        {% for task in task_counts %}
+            <p>{{task.task_type}}</p>
+            <p>{{task.count}}</p>
+        {% endfor %}
+
+        <h3>Title and deadline of uncompleted tasks</h3>
+        {% for unc in uncompleted %}
+            <p>{{unc.title}}</p>
+            <p>{{unc.deadline}}</p>
+        {% endfor %}
+
+        <h3>Title and task completion time of the top 2 completed tasks that took the most time</h3>
+        {% for task in top_completions %}
+            <p>{{task.title}}</p>
+            <p>{{task.completion_time}}</p>
+        {% endfor %}
+        
+	</div>
+  </body>
+</html>
+

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Tasks</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    </head>
+    <body>
+        {% if message is defined and message %}
+            <div class="alert alert-warning">{{ message }}</div>
+        {% endif %}
+        <div class="task-container">
+            <div class="header">
+                <h3>Tasks App</h3>
+                <div class="top-buttons">
+                    <form action="{{ url_for('analysis') }}" method="get">
+                        <button class="btn btn-primary">Go to analysis</button>
+                    </form>
+                    <form action="{{ url_for('logout') }}" method="get">
+                        <button class="btn btn-primary">Log out</button>
+                    </form>
+                </div>
+            </div>
+            <div class="title">
+                <h1>Welcome {{ session.username }}</h1>
+            </div>
+            
+            {% if tasks %}
+            <div class="task-list-container">
+                <h2 class="list-title">Your tasks</h2>
+                {% for task in tasks %}
+                    {% if task.status == 'Todo' %}
+                        <div class="task-card">
+                            <div class="descrip">
+                                <h3>{{ task.title }}</h3>
+                                <p>{{ task.description }}</p>
+                                <p><strong>Title:</strong> {{task.task_type}}</p>
+                            </div>
+                            <div>
+                                <p>Deadline: {{ task.deadline }}</p>
+                                <p>Creation: {{ task.creation_time }}</p>
+                            </div>
+                            <div class="buttons">
+                                <a href="{{'delete/'+task.id|string}}" >Delete</a>
+                                <a href="{{'complete/'+task.id|string}}" >Complete</a>
+                                <a href="{{'select/'+task.id|string}}" >Update</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="completed-list-container">
+                <h2 class="list-title">Completed tasks</h2>
+                {% for task in tasks %}
+                    {% if task.status == 'Done' %}
+                    <div class="task-card completed">
+                        <div class="descrip">
+                            <h3>{{ task.title }}</h3>
+                            <p>{{ task.description }}</p>
+                        </div>
+                        <div>
+                            <p>Deadline: {{ task.deadline }}</p>
+                            <p>Creation: {{ task.creation_time }}</p>
+                            <p>Completed: {{ task.done_time }}</p>
+                        </div>
+                        <div class="buttons">
+                            <a href="{{'uncomplete/'+task.id|string}}" >Uncomplete</a>
+                            <a href="{{'delete/'+task.id|string}}" >Delete</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+                <h3>You have no tasks</h3>
+            {% endif %}
+            
+            {% if not session.selected %}
+            <div class="task-create-container">
+                <h2 class="list-title">Create new task</h2>
+                <form class="form" action="{{ url_for('add_task') }}" method="post">
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Enter title">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea class="form-control" id="description" name="description" placeholder="Enter description"></textarea>
+                        
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline_date">Deadline date:</label>
+                        <input type="date" class="form-control" id="deadline_date" name="deadline_date" placeholder="Enter due date">
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline_time">Deadline time:</label>
+                        <input type="time" class="form-control" id="deadline_time" name="deadline_time" placeholder="Enter due date">
+                    </div>
+                    <div class="form-group">
+                        <label for="task_type">Task type:</label>
+                        <select id="task_type" name="task_type">
+                            <option value="Health">Health</option>
+                            <option value="Job">Job</option>
+                            <option value="Lifestyle">Lifestyle</option>
+                            <option value="Family">Family</option>
+                            <option value="Hobbies">Hobbies</option>
+                        </select>
+                    </div>  
+                
+                    <button type="submit" class="btn btn-primary">Save task</button>		
+                </form>
+            </div>
+            {% endif %}
+            {% if session.selected %}
+                <div class="task-create-container">
+                    <h2 class="list-title">Edit Task</h2>
+                    <form class="form" action="{{ url_for('update') }}" method="post">
+                        <div class="form-group">
+                            <label for="title">Title:</label>
+                            <input value="{{session.selected.title}}" type="text" class="form-control" id="title" name="title" placeholder="Enter title">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <textarea class="form-control" id="description" name="description" placeholder="Enter description">{{session.selected.description}}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="deadline_date">Deadline date:</label>
+                            <input value="{{session.selected.deadline}}" type="date" class="form-control" id="deadline_date" name="deadline_date" placeholder="Enter due date">
+                        </div>
+                        <div class="form-group">
+                            <label for="deadline_time">Deadline time:</label>
+                            <input type="time" class="form-control" id="deadline_time" name="deadline_time" placeholder="Enter due date">
+                        </div>
+                        <div class="form-group">
+                            <label for="task_type">Task type:</label>
+                            <select id="task_type" name="task_type">
+                                <option value="{{session.selected.task_type}}">{{session.selected.task_type}}</option>
+                                <option value="Health">Health</option>
+                                <option value="Job">Job</option>
+                                <option value="Lifestyle">Lifestyle</option>
+                                <option value="Family">Family</option>
+                                <option value="Hobbies">Hobbies</option>
+                            </select>
+                        </div>
+                    
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <form action="{{ url_for('cancel') }}" method="get">
+                            <button class="btn btn-primary">Cancel</button>
+                        </form>
+                    </form>
+                </div>
+            {% endif %}
+            
+        </div>
+    </body>
+</html>
+
