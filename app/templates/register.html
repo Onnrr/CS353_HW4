@@ -6,6 +6,7 @@
   </head>
   <body>
 	<div class="container">
+		<h1 class="main-title">Tasks App</h1>
 		<form action="{{ url_for('register') }}" method="post">
 			{% if message is defined and message %}
 				<div class="alert alert-warning">{{ message }}</div>

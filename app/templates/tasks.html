@@ -6,9 +6,10 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     </head>
     <body>
-        {% if message is defined and message %}
-            <div class="alert alert-warning">{{ message }}</div>
+        {% if session.message is defined and session.message %}
+            <p>{{session.message}}</p>
         {% endif %}
+        
         <div class="task-container">
             <div class="header">
                 <h3>Tasks App</h3>

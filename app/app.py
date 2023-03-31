@@ -1,9 +1,9 @@
 
 import re  
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, flash, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
-from datetime import datetime
+from datetime import datetime, timedelta
 import MySQLdb.cursors
 
 app = Flask(__name__) 
@@ -68,7 +68,7 @@ def register():
 
 @app.route('/tasks', methods =['GET', 'POST'])
 def tasks():
-    message = ''
+    
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM Task WHERE user_id = %s ORDER BY deadline;', (session['userid'],))
     tasks = cursor.fetchall()
@@ -77,10 +77,11 @@ def tasks():
     completed = cursor.fetchall()
     cursor.execute('SELECT * FROM TaskType;')
     types = cursor.fetchall()
-    return render_template('tasks.html', tasks=tasks, completed=completed, message=message, session=session, types = types)
+    return render_template('tasks.html', tasks=tasks, completed=completed, session=session, types = types)
 
 @app.route('/add_task', methods =['POST'])
 def add_task():
+    session['message'] = ''
     message = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if not session['loggedin']:
@@ -91,39 +92,55 @@ def add_task():
             type = cursor.fetchone()
             if not type:
                 message = 'Invalid task type'
-        if request.method == 'POST' and 'title' in request.form and 'description' in request.form and 'deadline_time' in request.form and 'deadline_date' in request.form and 'task_type' in request.form:
+        if request.form['title'] == '':
+            message = 'Title cannot be empty'
+        elif request.form['deadline_date'] == '':
+            message = 'Deadline date cannot be empty'
+        elif request.form['deadline_time'] == '':
+            message = 'Deadline time cannot be empty'
+        elif request.method == 'POST' and 'title' in request.form and 'description' in request.form and 'deadline_time' in request.form and 'deadline_date' in request.form and 'task_type' in request.form:
             now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            adjusted_time = now + timedelta(hours=3)
+            current_time = adjusted_time.strftime("%Y-%m-%d %H:%M:%S")
             deadline = request.form['deadline_date'] + ' ' + request.form['deadline_time']
-            cursor.execute('''
-            INSERT INTO Task(
-                title,
-                description,
-                status,
-                deadline,
-                creation_time,
-                done_time,
-                user_id,  
-                task_type
-            ) VALUES(
-                %s,
-                %s,
-                'Todo',
-                %s,
-                %s,
-                NULL,
-                %s,
-                %s
-            );
-            ''', (request.form['title'],request.form['description'],deadline,current_time,session['userid'],request.form['task_type'],))
 
-            mysql.connection.commit()
-            message = 'success'
+            if deadline < current_time:
+                message = 'Deadline cannot be a past time'
+            else:
+                cursor.execute('''
+                INSERT INTO Task(
+                    title,
+                    description,
+                    status,
+                    deadline,
+                    creation_time,
+                    done_time,
+                    user_id,  
+                    task_type
+                ) VALUES(
+                    %s,
+                    %s,
+                    'Todo',
+                    %s,
+                    %s,
+                    NULL,
+                    %s,
+                    %s
+                );
+                ''', (request.form['title'],request.form['description'],deadline,current_time,session['userid'],request.form['task_type'],))
+
+                mysql.connection.commit()
+                message = ''
+        else:
+            message = 'Please check the task information'
+        
+        session['message'] = message
     return redirect(url_for('tasks'))
 
 
 @app.route('/delete/<int:id>', methods =['GET'])
 def delete(id):
+    session['message'] = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if session['loggedin']:
         cursor.execute('DELETE FROM Task WHERE id = %s;', (id,))
@@ -132,9 +149,11 @@ def delete(id):
 
 @app.route('/complete/<int:id>', methods =['GET'])
 def complete(id):
+    session['messsage'] = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     now = datetime.now()
-    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    adjusted_time = now + timedelta(hours=3)
+    current_time = adjusted_time.strftime("%Y-%m-%d %H:%M:%S")
     if session['loggedin']:
         cursor.execute('UPDATE Task SET status=\'Done\', done_time=%s WHERE id = %s;', (current_time, id,))
         mysql.connection.commit()
@@ -142,6 +161,7 @@ def complete(id):
 
 @app.route('/uncomplete/<int:id>', methods =['GET'])
 def uncomplete(id):
+    session['message'] = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if session['loggedin']:
         cursor.execute('UPDATE Task SET status=\'Todo\', done_time=NULL WHERE id = %s;', (id,))
@@ -150,16 +170,26 @@ def uncomplete(id):
 
 @app.route('/update', methods =['POST'])
 def update():
+    message = ''
+    session['message'] = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
     if session['loggedin'] and 'title' in request.form and 'description' in request.form and 'task_type' in request.form and 'deadline_time' in request.form and 'deadline_date' in request.form:
-        cursor.execute('UPDATE Task SET title=%s WHERE id=%s;', (request.form['title'], session['selected']['id'],))
-        cursor.execute('UPDATE Task SET description = %s WHERE id = %s;', (request.form['description'],session['selected']['id'],))
-        cursor.execute('UPDATE Task SET task_type = %s WHERE id = %s;', (request.form['task_type'],session['selected']['id'],))
-        deadline = request.form['deadline_date'] + ' ' + request.form['deadline_time']
-        cursor.execute('UPDATE Task SET deadline = %s WHERE id = %s;', (deadline,session['selected']['id'],))
-        mysql.connection.commit()
-        session['selected'] = None
-
+        if request.form['title'] == '':
+            message = 'Title cannot be empty'
+        elif request.form['deadline_date'] == '':
+            message = 'Deadline date cannot be empty'
+        elif request.form['deadline_time'] == '':
+            message = 'Deadline time cannot be empty'
+        else:
+            cursor.execute('UPDATE Task SET title=%s WHERE id=%s;', (request.form['title'], session['selected']['id'],))
+            cursor.execute('UPDATE Task SET description = %s WHERE id = %s;', (request.form['description'],session['selected']['id'],))
+            cursor.execute('UPDATE Task SET task_type = %s WHERE id = %s;', (request.form['task_type'],session['selected']['id'],))
+            deadline = request.form['deadline_date'] + ' ' + request.form['deadline_time']
+            cursor.execute('UPDATE Task SET deadline = %s WHERE id = %s;', (deadline,session['selected']['id'],))
+            mysql.connection.commit()
+            session['selected'] = None
+    session['message'] = message
     
     return redirect(url_for('tasks'))
 
@@ -186,7 +216,8 @@ def logout():
     session['userid'] = ""
     session['username'] = ""
     session['email'] = ""
-    session['selected']= None
+    session['selected'] = None
+    session['message'] = ''
     
     return redirect(url_for('login'))
 

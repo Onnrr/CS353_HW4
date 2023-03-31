@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   </head>
   <body>
-	<div class="container">
+	<div class="analysis-container">
     <div class="header">
       <h3>Tasks App</h3>
       <div class="top-buttons">
@@ -17,7 +17,7 @@
           </form>
       </div>
     </div>
-		<h1>Analysis</h1>
+		<h1 class="analysis-main-title">Analysis</h1>
     <h3 class="analysis-title">Latencies of tasks completed after their deadlines</h3>
     <table>
       <thead>
@@ -37,7 +37,7 @@
     </table>
 
     <h3 class="analysis-title">Average task completion time</h3>
-    <p>{{average_completion.average}}</p>
+    <p>{{average_completion.average}} seconds</p>
 
     <h3 class="analysis-title">Number of the completed tasks per task type</h3>
     <table>
@@ -77,7 +77,7 @@
     </table>
 
     <h3 class="analysis-title">Title and task completion time of the top 2 completed tasks that took the most time</h3>
-    <table>
+    <table class="last">
       <thead>
         <tr>
           <th>Title</th>
