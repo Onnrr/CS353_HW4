@@ -70,7 +70,7 @@ def register():
 def tasks():
     
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM Task WHERE user_id = %s ORDER BY deadline;', (session['userid'],))
+    cursor.execute('SELECT * FROM Task WHERE user_id = %s ORDER BY ABS(now() - deadline);', (session['userid'],))
     tasks = cursor.fetchall()
 
     cursor.execute('SELECT * FROM Task WHERE user_id = %s AND status = \'Done\' ORDER BY done_time;', (session['userid'],))
