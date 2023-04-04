@@ -226,7 +226,7 @@ def logout():
 def analysis():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     # List the title and latency of the tasks that were completed after their deadlines (for the user).
-    cursor.execute('''SELECT title, done_time - deadline AS latency 
+    cursor.execute('''SELECT title, SEC_TO_TIME(TIMESTAMPDIFF(SECOND,deadline,done_time)) AS latency 
                         FROM Task 
                         WHERE user_id = %s 
                         AND status = 'Done' 
@@ -244,7 +244,7 @@ def analysis():
     cursor.execute('SELECT title, deadline FROM Task WHERE user_id = %s AND status = \'Todo\' ORDER BY deadline;', (session['userid'],))
     uncompleted = cursor.fetchall()
     # List the title and task completion time of the top 2 completed tasks that took the most time, in descending order (for the user). (You can use the LIMIT clause).
-    cursor.execute('''SELECT title, done_time - creation_time AS completion_time 
+    cursor.execute('''SELECT title, SEC_TO_TIME(TIMESTAMPDIFF(SECOND,creation_time,done_time)) AS completion_time 
                             FROM Task 
                             WHERE user_id = %s AND status = 'Done' 
                         ORDER BY done_time - creation_time DESC

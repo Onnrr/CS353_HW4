@@ -30,7 +30,7 @@
         {% for lat in latencies %}
           <tr>
             <td>{{lat.title}}</td>
-            <td>{{lat.latency}}</td>
+            <td>{{lat.latency}} hours:minutes:seconds</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -88,7 +88,7 @@
         {%  for task in top_completions %}
           <tr>
             <td>{{task.title}}</td>
-            <td>{{task.completion_time}}</td>
+            <td>{{task.completion_time}} hours:minutes:seconds</td>
           </tr>
         {% endfor %}
       </tbody>
